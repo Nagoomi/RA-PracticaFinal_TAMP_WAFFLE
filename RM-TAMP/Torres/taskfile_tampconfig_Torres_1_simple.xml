@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<Task name= "OMPL_RRTconnect_Torres.xml" >
+	<Initialstate>
+		<Object object="pawnB1"> 0.323 -0.068 -0.403 1.0 0.0 0.0 0.0  </Object>
+		<Object object="pawnB2"> 0.386 -0.078 -0.403 1.0 0.0 0.0 0.0  </Object>
+		<Object object="pawnB3"> 0.452 -0.071 -0.395 1.0 0.0 0.0 0.0  </Object>
+	</Initialstate>
+</Task>
