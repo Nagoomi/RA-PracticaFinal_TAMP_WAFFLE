@@ -64,6 +64,35 @@ class RobotExplorer:
         # Método callback para recibir la odometría del robot
         self.current_x = odom.pose.pose.position.x
         self.current_y = odom.pose.pose.position.y
+        
+    def odometry_callback(self, odom):
+        # Método callback para recibir la odometría del robot
+        self.current_x = odom.pose.pose.position.x
+        self.current_y = odom.pose.pose.position.y
+
+        # Obtener la orientación del robot (en cuaterniones)
+        orientation_q = odom.pose.pose.orientation
+        _, _, self.current_yaw = self.euler_from_quaternion(orientation_q)
+        
+    def euler_from_quaternion(self, quat):
+        """
+        Convert a quaternion into euler angles (roll, pitch, yaw)
+        """
+        x, y, z, w = quat.x, quat.y, quat.z, quat.w
+        t0 = +2.0 * (w * x + y * z)
+        t1 = +1.0 - 2.0 * (x * x + y * y)
+        roll = math.atan2(t0, t1)
+
+        t2 = +2.0 * (w * y - z * x)
+        t2 = +1.0 if t2 > +1.0 else t2
+        t2 = -1.0 if t2 < -1.0 else t2
+        pitch = math.asin(t2)
+
+        t3 = +2.0 * (w * z + x * y)
+        t4 = +1.0 - 2.0 * (y * y + z * z)
+        yaw = math.atan2(t3, t4)
+
+        return roll, pitch, yaw
 
     def map_callback(self, data):
         if self.explore_mode:
@@ -229,13 +258,38 @@ class RobotExplorer:
                     error_x = int(x2) - int(center_x)
                     error_theta = math.atan2(y2 - center_y, x2 - center_x)
  
-                if radius <= 140:
-                    self.explore_mode = False
-                    distancia_objeto = 1.0  # Distancia deseada hacia adelante desde el robot (ajustar según necesidad)
-                    target_x = self.current_x + distancia_objeto * math.cos(error_theta)
-                    target_y = self.current_y + distancia_objeto * math.sin(error_theta)
+                if radius <= 90:
+                    #self.explore_mode = False
+                    
+                    Kp = 0.001  # Constante proporcional para ajuste (ajustar según necesidad)
+                    adjust_angle = Kp * error_x
+                    target_yaw = self.current_yaw - adjust_angle
+                    
+                    distancia_objeto = 0.8 # Distancia deseada hacia adelante desde el robot (ajustar según necesidad)
+                    target_x = self.current_x + distancia_objeto * math.cos(target_yaw)
+                    target_y = self.current_y + distancia_objeto * math.sin(target_yaw)
                     rospy.loginfo(f"Current position: ({self.current_x:.2f}, {self.current_y:.2f})")
                     rospy.loginfo(f"Target position: ({target_x:.2f}, {target_y:.2f})")
+                    rospy.loginfo(f"ERROR: {error_x}")
+                    rospy.loginfo(f"DIFERNCIA ANGULOS: ({self.current_yaw}, {target_yaw})")
+
+                    # Utiliza el punto objetivo en tu lógica
+                    self.set_goal(target_x, target_y)
+                    
+                if radius > 90 and radius <= 140:
+                    #self.explore_mode = False
+                    
+                    Kp = 0.001  # Constante proporcional para ajuste (ajustar según necesidad)
+                    adjust_angle = Kp * error_x
+                    target_yaw = self.current_yaw - adjust_angle
+                    
+                    distancia_objeto = 0.4  # Distancia deseada hacia adelante desde el robot (ajustar según necesidad)
+                    target_x = self.current_x + distancia_objeto * math.cos(target_yaw)
+                    target_y = self.current_y + distancia_objeto * math.sin(target_yaw)
+                    rospy.loginfo(f"Current position: ({self.current_x:.2f}, {self.current_y:.2f})")
+                    rospy.loginfo(f"Target position: ({target_x:.2f}, {target_y:.2f})")
+                    rospy.loginfo(f"ERROR: {error_x}")
+                    rospy.loginfo(f"DIFERNCIA ANGULOS: ({self.current_yaw}, {target_yaw})")
 
                     # Utiliza el punto objetivo en tu lógica
                     self.set_goal(target_x, target_y)
@@ -260,14 +314,17 @@ class RobotExplorer:
                     elif found_color1 and not self.amarillo: 
                     	 self.visitas['Amarillo']= (self.current_x, self.current_y)
                     	 self.amarillo = True
+                    	 self.set_goal()
                     	 
                     elif found_color2 and not self.verde: 
                         self.visitas['Verde']= (self.current_x, self.current_y)
                         self.verde = True
+                        self.set_goal()
                         
                     rospy.loginfo(f"Object reached {str(self.visitas)}")
                     
                     self.explore_mode = True
+                    
 
     def show_frame(self, event):
         if self.frame is not None:
