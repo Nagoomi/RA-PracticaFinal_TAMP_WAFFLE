@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<Config>
+    <Problemfiles>
+        <pddldomain name="ff-domains/domain_file.pddl" />
+        <pddlproblem name="ff-domains/problem_file" />
+        <directory name="/demos/OMPL_geo_demos/staircase/"/>
+    </Problemfiles>
+</Config>

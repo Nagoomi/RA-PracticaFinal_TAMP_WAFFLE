@@ -1,0 +1,11 @@
+<launch>
+  <arg name="model" default="waffle"/>
+  <arg name="x_pos" default="0.0"/>
+  <arg name="y_pos" default="0.0"/>
+  <arg name="z_pos" default="0.0"/>
+
+
+  <param name="robot_description" command="$(find xacro)/xacro --inorder $(find turtlebot3_description)/urdf/turtlebot3_$(arg model).urdf.xacro" />
+
+  <node name="tracker_node" pkg="object_tracker" type="my_follower.py" output="screen"/>
+</launch>

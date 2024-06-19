@@ -1,0 +1,24 @@
+(define (problem staircase_simpl)
+
+(:domain staircase)
+
+(:objects
+    POS1 POS2 POS3 POS4 - loc
+    pawnB1 pawnB2 - cub
+    ur3a - robot
+)
+
+(:init
+    (in pawnB1 POS1)
+    (in pawnB2 POS2)
+    (handEmpty ur3a)
+)
+
+(:goal
+    (and 
+        (in pawnB1 POS3)
+        (in pawnB2 POS4)
+    )
+        
+)
+)
